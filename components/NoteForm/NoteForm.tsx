@@ -8,19 +8,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 interface FormValues {
     title: string;
     content: string;
-    tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+    categoryId: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 }
 
 const values: FormValues = {
     title: "",
     content: "",
-    tag: "Todo",
+    categoryId: "Todo",
 }
 
 const AddNoteSchema = Yup.object().shape({
     title: Yup.string().min(3, "Too Short!").max(50, "Too Long!").required("Required field"),
     content: Yup.string().max(500, "Too Long!"),
-    tag: Yup.string().oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"]),
+    categoryId: Yup.string().oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"]),
 })
 
 
@@ -46,7 +46,7 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
         mutate({
             title: values.title,
             content: values.content,
-            tag: values.tag,
+            categoryId: values.categoryId,
         });
     };
     
@@ -56,7 +56,7 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
             initialValues={values}
             validationSchema={AddNoteSchema}
             onSubmit={handleSubmit}
-    >
+        >
             <Form className={css.form}>
                 <div className={css.formGroup}>
                     <label htmlFor={`${fieldId}-title`}>Title</label>
@@ -90,11 +90,11 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
                 </div>
 
                 <div className={css.formGroup}>
-                    <label htmlFor={`${fieldId}-tag`}>Tag</label>
+                    <label htmlFor={`${fieldId}-categoryId`}>Category</label>
                     <Field
                         as="select"
-                        name="tag"
-                        id={`${fieldId}-tag`}
+                        name="categoryId"
+                        id={`${fieldId}-categoryId`}
                         className={css.select}
                     >
                         <option value="Todo">Todo</option>
@@ -104,7 +104,7 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
                         <option value="Shopping">Shopping</option>
                     </Field>
                     <ErrorMessage
-                        name="tag"
+                        name="categoryId"
                         component="span"
                         className={css.error}
                     />
@@ -124,6 +124,6 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
                     </button>
                 </div>
             </Form>
-    </Formik>
+        </Formik>
     )
 }
