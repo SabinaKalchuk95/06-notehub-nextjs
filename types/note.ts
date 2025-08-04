@@ -4,7 +4,7 @@ export interface Note {
     id: string;
     title: string;
     content: string;
-    categoryId: NoteTag;
+    tag: NoteTag;
     userId: string;
     createdAt: string;
     updatedAt: string;
