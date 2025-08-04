@@ -46,7 +46,7 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
         mutate({
             title: values.title,
             content: values.content,
-            categoryId: values.tag,
+            tag: values.tag,
         });
     };
     
