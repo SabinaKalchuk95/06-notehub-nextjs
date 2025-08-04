@@ -13,7 +13,11 @@ import css from "./page.module.css"
 import type { FetchNotesResponse } from "@/lib/api"; 
 import type { Note } from "@/types/note"; 
 
-export default function NotesClient() {
+interface NotesClientProps {
+  initialNotes: FetchNotesResponse;
+}
+
+export default function NotesClient({ initialNotes }: NotesClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -35,6 +39,7 @@ export default function NotesClient() {
   const { data, isLoading } = useQuery<FetchNotesResponse>({ 
     queryKey: ["notes", currentPage, searchQuery],
     queryFn: () => fetchNotes(currentPage, searchQuery),
+    initialData: initialNotes,
     placeholderData: keepPreviousData,
   })
 
