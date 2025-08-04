@@ -5,22 +5,23 @@ import * as Yup from "yup";
 import { createNote, type NewNote } from "../../lib/api"
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+
 interface FormValues {
     title: string;
     content: string;
-    categoryId: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+    tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping"; 
 }
 
 const values: FormValues = {
     title: "",
     content: "",
-    categoryId: "Todo",
+    tag: "Todo", 
 }
 
 const AddNoteSchema = Yup.object().shape({
     title: Yup.string().min(3, "Too Short!").max(50, "Too Long!").required("Required field"),
     content: Yup.string().max(500, "Too Long!"),
-    categoryId: Yup.string().oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"]),
+    tag: Yup.string().oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"]),
 })
 
 
@@ -46,11 +47,10 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
         mutate({
             title: values.title,
             content: values.content,
-            categoryId: values.categoryId,
+            tag: values.tag, 
         });
     };
     
-
     return (
         <Formik
             initialValues={values}
@@ -90,11 +90,11 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
                 </div>
 
                 <div className={css.formGroup}>
-                    <label htmlFor={`${fieldId}-categoryId`}>Category</label>
+                    <label htmlFor={`${fieldId}-tag`}>Category</label> {/* <-- Змінено на tag */}
                     <Field
                         as="select"
-                        name="categoryId"
-                        id={`${fieldId}-categoryId`}
+                        name="tag" // <-- Змінено на tag
+                        id={`${fieldId}-tag`} // <-- Змінено на tag
                         className={css.select}
                     >
                         <option value="Todo">Todo</option>
@@ -104,7 +104,7 @@ export default function NoteForm({onCloseModal}: NoteFormProps) {
                         <option value="Shopping">Shopping</option>
                     </Field>
                     <ErrorMessage
-                        name="categoryId"
+                        name="tag" // <-- Змінено на tag
                         component="span"
                         className={css.error}
                     />
