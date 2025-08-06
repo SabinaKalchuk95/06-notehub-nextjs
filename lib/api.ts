@@ -2,6 +2,7 @@ import axios from "axios";
 import type { Note, NoteTag } from "@/types/note";
 
 axios.defaults.baseURL = "https://next-docs-api.onrender.com"; 
+
 export interface FetchNotesResponse {
     notes: Note[];
     totalPages: number; 
@@ -44,8 +45,14 @@ export const createNote = async (newNote: NewNote) => {
         });
 
         return res.data;
-    } catch (error) {
-        console.error("Failed to post note:", error); 
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            console.error("Failed to post note:", error.response?.data || error.message || error);
+        } else if (error instanceof Error) {
+            console.error("Failed to post note:", error.message);
+        } else {
+            console.error("Failed to post note:", error);
+        }
         throw error;
     }
 }
@@ -60,7 +67,7 @@ export const deleteNote = async (noteId: string) => {
 
         return res.data;
     } catch (error) {
-        console.error("Failed to delete note:", error); // 
+        console.error("Failed to delete note:", error); 
         throw error;
     }     
 }
@@ -75,7 +82,7 @@ export const fetchNoteById = async (id: string) => {
 
         return res.data;
     } catch (error) {
-        console.error("Failed to fetch note:", error); // 
+        console.error("Failed to fetch note:", error); 
         throw error;
     }
 }
