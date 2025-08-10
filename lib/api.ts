@@ -41,7 +41,7 @@ axios.interceptors.response.use(
 );
 
 // 🔖 Типы
-export type NoteTag = "todo" | "work" | "personal" | "meeting" | "shopping";
+export type NoteTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 
 export interface NewNote {
   title: string;
