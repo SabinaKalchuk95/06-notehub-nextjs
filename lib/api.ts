@@ -1,88 +1,90 @@
 import axios from "axios";
-import type { Note, NoteTag } from "@/types/note";
+import type { Note } from "@/types/note";
 
-axios.defaults.baseURL = "https://next-docs-api.onrender.com"; 
+// 🔧 Axios базовая конфигурация
+axios.defaults.baseURL = "https://notehub-public.goit.study/api/";
+axios.defaults.headers.common["Content-Type"] = "application/json";
+axios.defaults.headers.common["Accept"] = "application/json";
 
-export interface FetchNotesResponse {
-    notes: Note[];
-    totalPages: number; 
+// 🔑 Токен из .env.local
+const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+
+if (!token) {
+  console.warn("⚠️ NoteHub token is missing. Check your .env.local file.");
 }
+
+axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+// 🔁 Глобальный перехватчик ошибок
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const message = error.response?.data?.message || error.message;
+
+      console.error(`❌ Axios error [${status}]:`, message);
+
+      if (status === 401) {
+        console.warn("🔒 Unauthorized. Your token may be invalid or expired.");
+      }
+
+      if (status === 404) {
+        console.warn("⚠️ Not Found. Check the endpoint or query parameters.");
+      }
+    } else {
+      console.error("❌ Unexpected error:", error);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// 🔖 Типы
+export type NoteTag = "todo" | "work" | "personal" | "meeting" | "shopping";
 
 export interface NewNote {
-    title: string;
-    content: string;
-    tag: NoteTag; 
+  title: string;
+  content: string;
+  tag: NoteTag;
 }
 
+export interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
+
+// 📥 Получение списка заметок
 export const fetchNotes = async (page: number, search: string) => {
-    const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+  const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+  const safeSearch = typeof search === "string" ? search.trim() : "";
 
-    const params: Record<string, string | number> = { page };
+  const params: Record<string, string | number> = { page: safePage };
+  if (safeSearch) {
+    params.search = safeSearch;
+  }
 
-    if (search.trim()) {
-        params.search = search.trim();
-    }
+  console.log("🔍 Fetching notes with params:", params);
+  console.log("🔑 Token:", token);
 
-    try {
-        const res = await axios.get<FetchNotesResponse>("/notes", {
-            params,
-            headers: { Authorization: `Bearer ${myKey}` },
-        });
+  const res = await axios.get<FetchNotesResponse>("/notes", { params });
+  return res.data;
+};
 
-        return res.data;
-    } catch (error) {
-        console.error("Failed to fetch notes:", error); 
-        throw error;
-    }
-}
-
+// 📝 Создание заметки
 export const createNote = async (newNote: NewNote) => {
-    const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+  const res = await axios.post<Note>("/notes", newNote);
+  return res.data;
+};
 
-    try {
-        const res = await axios.post<Note>("/notes", newNote, {
-            headers: { Authorization: `Bearer ${myKey}` },
-        });
-
-        return res.data;
-    } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-            console.error("Failed to post note:", error.response?.data || error.message || error);
-        } else if (error instanceof Error) {
-            console.error("Failed to post note:", error.message);
-        } else {
-            console.error("Failed to post note:", error);
-        }
-        throw error;
-    }
-}
-
+// 🗑️ Удаление заметки
 export const deleteNote = async (noteId: string) => {
-    const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+  const res = await axios.delete<Note>(`/notes/${noteId}`);
+  return res.data;
+};
 
-    try {
-        const res = await axios.delete<Note>(`/notes/${noteId}`, {
-            headers: { Authorization: `Bearer ${myKey}` },
-        });
-
-        return res.data;
-    } catch (error) {
-        console.error("Failed to delete note:", error); 
-        throw error;
-    }     
-}
-
+// 📄 Получение заметки по ID
 export const fetchNoteById = async (id: string) => {
-    const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-
-    try {
-        const res = await axios.get<Note>(`/notes/${id}`, {
-            headers: { Authorization: `Bearer ${myKey}` },
-        });
-
-        return res.data;
-    } catch (error) {
-        console.error("Failed to fetch note:", error); 
-        throw error;
-    }
-}
+  const res = await axios.get<Note>(`/notes/${id}`);
+  return res.data;
+};
